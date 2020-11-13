@@ -1,6 +1,6 @@
 <template>
   <div class="block-container">
-    <div v-tooltip.left="'bch-abc: ...' + block.bch.hash.substring(block.bch.hash.length-10, block.bch.hash.length) + '\n' + 'bchnode: ...' + block.bchn.hash.substring(block.bchn.hash.length-10, block.bchn.hash.length) + '\n' + 'bchbchn: ...' + block.bchbchn.hash.substring(block.bchbchn.hash.length-10, block.bchbchn.hash.length)" class="block-content-container">
+    <div v-tooltip.left="'bchabc: ...' + block.bch.hash.substring(block.bch.hash.length-10, block.bch.hash.length) + '\n' + 'bchnode: ...' + block.bchn.hash.substring(block.bchn.hash.length-10, block.bchn.hash.length) + '\n' + 'bchbchn: ...' + block.bchbchn.hash.substring(block.bchbchn.hash.length-10, block.bchbchn.hash.length)" class="block-content-container">
       <img class="block" :src="imgSrcPath">
       <div class="height-container">
         <div class="height">{{ block.height }}</div>
