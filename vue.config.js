@@ -2,7 +2,7 @@ module.exports = {
   devServer: {
     proxy: {
       "/api": {
-        target: "http://localhost:7071",
+        target: "https://bchnmonitor.azurewebsites.net/",
       }
     }
   }
