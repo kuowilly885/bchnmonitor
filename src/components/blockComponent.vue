@@ -1,43 +1,68 @@
 <template>
   <div class="block-container">
-    <div v-tooltip.left="tip" class="block-content-container">
+    <div v-on:click="showBlock" v-tooltip.left="tip" class="block-content-container">
       <img class="block" :src="imgSrcPath">
       <div class="height-container">
-        <div class="height" v-bind:class="{ height_black: isDiff, height_red: !isDiff }">{{ block.height }}</div>
+        <div class="height" v-bind:class="{ height_black: isSame, height_red: !isSame }">{{ block.height }}</div>
       </div>
     </div>
-    <div class="vl" v-bind:class="{ vl_black: isDiff, vl_red: !isDiff }">
+    <div class="vl" v-bind:class="{ vl_black: isSame, vl_red: !isSame }">
     </div>
   </div>
 </template>
 
 <script scoped>
+
+import { EventBus } from '../main.js'
+
 export default {
   name: "Block",
   data() {
     return {
       imgSrcPath: '/image/cube-same.png',
-      isDiff: false,
+      isSame: false,
       tip: ''
     }
   },
   props: {
-    block: Object
+    block: Object,
+    tag: String
   },
   methods: {
     getLastHash(hash) {
       return hash ? '...' + hash.substring(hash.length-15, hash.length) : 'none'
+    },
+    showBlock () {
+
+      if (this.tag == 'mix') {
+        EventBus.$emit('showBlock', this.block)
+      } else {
+        let block = {
+          bch: { isEmpty: true },
+          bchn: { isEmpty: true },
+          bchbchn: { isEmpty: true },
+        }
+        block[this.tag] = this.block
+        EventBus.$emit('showBlock', block)
+      }
     }
   },
   mounted() {
-    let bchHash = this.block.bch.hash
-    let bchnHash = this.block.bchn.hash
-    let bchbchnHash = this.block.bchbchn.hash
 
-    this.isDiff = bchHash == bchnHash && bchnHash == bchbchnHash
-    this.imgSrcPath = this.isDiff ? '/image/cube-same.png' : '/image/cube-diff.png'
+    if (this.tag == 'mix') {
+      let bchHash = this.block.bch.hash
+      let bchnHash = this.block.bchn.hash
+      let bchbchnHash = this.block.bchbchn.hash
 
-    this.tip = 'bchabc: ' + this.getLastHash(bchHash) + '\n' + 'bchnode: ' + this.getLastHash(bchnHash) + '\n' + 'bchbchn: ' + this.getLastHash(bchbchnHash)
+      this.isSame = bchHash == bchnHash && bchnHash == bchbchnHash
+      this.imgSrcPath = this.isSame ? '/image/cube-same.png' : '/image/cube-diff.png'
+
+      this.tip = 'bchabc: ' + this.getLastHash(bchHash) + '\n' + 'bchnode: ' + this.getLastHash(bchnHash) + '\n' + 'bchbchn: ' + this.getLastHash(bchbchnHash)
+    } else {
+      this.isSame = true
+      this.imgSrcPath = '/image/cube-same.png'
+      this.tip = this.getLastHash(this.block.hash)
+    }
   }
 }
 </script>

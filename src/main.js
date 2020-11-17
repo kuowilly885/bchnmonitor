@@ -8,6 +8,7 @@ Vue.use(VueObserveVisibility)
 Vue.config.productionTip = false
 
 import "@/assets/css/universal.css"
+export const EventBus = new Vue();
 
 new Vue({
   render: h => h(App),
