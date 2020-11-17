@@ -7,7 +7,7 @@ Vue.use(VTooltip)
 Vue.use(VueObserveVisibility)
 Vue.config.productionTip = false
 
-import "@/assets/css/tooltip.css"
+import "@/assets/css/universal.css"
 
 new Vue({
   render: h => h(App),

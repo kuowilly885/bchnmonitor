@@ -101,13 +101,15 @@ export default {
 
 <style scoped>
   .page_container {
+    height: inherit;
     display: flex;
     flex-direction: row;
+    align-items: stretch;
+    flex-wrap: wrap;
   }
   .chain_container {
     flex: 1;
-    border-left-width: 8px;
-    border-left-style: solid;
+    background-color: #f0f8ff;
   }
   .chain  {
     margin: 50px;
@@ -118,5 +120,6 @@ export default {
   }
   .blockdata {
     position: fixed;
+    height: 100%;
   }
 </style>
