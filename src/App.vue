@@ -178,7 +178,7 @@ export default {
 
       if (!block.bchbchn.isEmpty) {
         bdatas.push(block.bchbchn)
-        block.bchbchn.tag = 'BCHN NODE'
+        block.bchbchn.tag = 'BCH ABC NODE'
       }
 
       this.bdatas = bdatas
