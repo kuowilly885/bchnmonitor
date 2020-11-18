@@ -215,6 +215,7 @@ export default {
           this.blocks = toConcat.concat(this.blocks)
           this.$nextTick(() => {
             document.getElementById('block-' + originalHeight).scrollIntoView(true)
+            console.log('top')
             this.isBlocksDataLoading = false
           })
         }
@@ -230,6 +231,7 @@ export default {
           this.blocks = res.blocks
           this.$nextTick(() => {
             document.getElementById('block-' + gotoHeight).scrollIntoView(true)
+            console.log('goto')
             if (gotoHeight == this.topHeight) {
               this.isBlocksDataLoading = false
             }
