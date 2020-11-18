@@ -215,10 +215,9 @@ export default {
           this.blocks.unshift(res.blocks[0])
           this.$nextTick(() => {
             document.getElementById('block-' + originalHeight).scrollIntoView(true)
+            this.isBlocksDataLoading = false
           })
         }
-
-        this.isBlocksDataLoading = false
       }
     },
     async handleGotoHeight () {
