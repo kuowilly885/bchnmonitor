@@ -204,15 +204,15 @@ export default {
         }
 
         let res = await this.getBlocksByHeight(afterHeight)
+        let toConcat = []
 
 
         if (res.blocks.length > 0) {
-          for (let i = top - 1; i > 0 ; i--) {
-            let block = res.blocks[i]
-            this.blocks.unshift(block)
+          for (let i = 0; i < top ; i++) {
+            toConcat.push(res.blocks[i])
           }
 
-          this.blocks.unshift(res.blocks[0])
+          this.blocks = toConcat.concat(this.blocks)
           this.$nextTick(() => {
             document.getElementById('block-' + originalHeight).scrollIntoView(true)
             this.isBlocksDataLoading = false
