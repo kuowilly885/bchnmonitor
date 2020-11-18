@@ -2,6 +2,7 @@
   <div class="block-container">
     <div v-on:click="showBlock" v-tooltip.left="tip" class="block-content-container">
       <img class="block" :src="imgSrcPath">
+      <img v-if="selected" class="checked" src="/image/checked.png">
       <div class="height-container">
         <div class="height" v-bind:class="{ height_black: isSame, height_red: !isSame }">{{ block.height }}</div>
       </div>
@@ -21,7 +22,8 @@ export default {
     return {
       imgSrcPath: '/image/cube-same.png',
       isSame: false,
-      tip: ''
+      tip: '',
+      selected: false
     }
   },
   props: {
@@ -38,6 +40,7 @@ export default {
         EventBus.$emit('showBlock', this.block)
       } else {
         let block = {
+          height: this.block.height,
           bch: { isEmpty: true },
           bchn: { isEmpty: true },
           bchbchn: { isEmpty: true },
@@ -48,7 +51,6 @@ export default {
     }
   },
   mounted() {
-
     if (this.tag == 'mix') {
       let bchHash = this.block.bch.hash
       let bchnHash = this.block.bchn.hash
@@ -82,6 +84,11 @@ export default {
   .block {
     height: 150px;
     width: 150px;
+  }
+  .checked {
+    position: absolute;
+    height: 20px;
+    width: 20px;
   }
   .height-container {
     position: absolute;

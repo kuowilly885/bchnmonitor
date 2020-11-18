@@ -14,15 +14,19 @@
           </div>
       </div>
       <div class="page_container">
-
         <div class="blockdata_container">
           <div class="blocksection">
             <blockDataComponent v-for="bdata in bdatas" :key="bdata.tag" :bdata="bdata"/>
           </div>
         </div>
         <div class="chain_container">
+          <div class="search">
+            <input class="searchbar" placeholder="Goto a height" v-model="gotoHeight">
+            <img class="searchicon" src="/image/search.png" v-on:click="handleGotoHeight">
+          </div>
           <div class="chain">
-            <blockComponent v-for="block in blocks" :key="block.height" :block="block" :tag="tab"/>
+            <div v-if="blocks.length && blocks[0].height != topHeight" v-observe-visibility="handleScrolledToTop"></div>
+            <blockComponent v-for="block in blocks" :key="block.height" :block="block" :tag="tab" :id="'block-' + block.height" :ref="'block-' + block.height"/>
             <div v-if="blocks.length" v-observe-visibility="handleScrolledToBottom"></div>
           </div>
         </div>
@@ -52,48 +56,68 @@ export default {
       afterHeight: 0,
       tab: 'mix',
       bdatas: [],
-      isBlocksDataLoading: true
+      isBlocksDataLoading: true,
+      topHeight: 0,
+      gotoHeight: null,
+      selectedHeight: -1
     }
   },
   methods: {
+    showBlockBroadcast (blockToShow) {
+      if (this.tab == 'mix') {
+        EventBus.$emit('showBlock', blockToShow)
+      } else {
+        let block = {
+          height: blockToShow.height,
+          bch: { isEmpty: true },
+          bchn: { isEmpty: true },
+          bchbchn: { isEmpty: true },
+        }
+        block[this.tab] = blockToShow
+        EventBus.$emit('showBlock', block)
+      }
+    },
     async getTopBlocks () {
+      let afterHeight = -1
       if (this.tab == 'mix') {
         let res = await axios.get('/api/mix/blocks')
         let topHeightOfBch = res.data.bch.blocks.length == 0 ? -1 : res.data.bch.blocks[0].height
         let topHeightOfBchn = res.data.bchn.blocks.length == 0 ? -1 : res.data.bchn.blocks[0].height
         let topHeightOfBchBchn = res.data.bchbchn.blocks.length == 0 ? -1 : res.data.bchbchn.blocks[0].height
-        this.afterHeight = Math.max(topHeightOfBch, topHeightOfBchn, topHeightOfBchBchn) + 1
+        afterHeight = Math.max(topHeightOfBch, topHeightOfBchn, topHeightOfBchBchn) + 1
       } else {
         let res = await axios.get('/api/'+this.tab+'/blocks')
         let topHeightOfBch = res.data.blocks.length == 0 ? -1 : res.data.blocks[0].height
-        this.afterHeight = topHeightOfBch + 1
+        afterHeight = topHeightOfBch + 1
       }
 
-      this.blocks = await this.getBlocksByHeight()
+      let res = await this.getBlocksByHeight(afterHeight)
+      this.afterHeight = res.afterHeight
+      this.blocks = res.blocks
+      this.$nextTick(() => {
+        document.getElementById('block-' + (afterHeight - 1)).scrollIntoView(true)
 
-      if (this.tab == 'mix') {
-        EventBus.$emit('showBlock', this.blocks[0])
-      } else {
-        let block = {
-          bch: { isEmpty: true },
-          bchn: { isEmpty: true },
-          bchbchn: { isEmpty: true },
+        if (res.blocks.length > 0) {
+          this.topHeight = res.blocks[0].height
+          this.showBlockBroadcast(res.blocks[0])
         }
-        block[this.tab] = this.blocks[0]
-        EventBus.$emit('showBlock', block)
-      }
+
+        this.isBlocksDataLoading = false
+      })
+
+
     },
-    async getBlocksByHeight () {
-      this.isBlocksDataLoading = true
+    async getBlocksByHeight (afterHeight) {
       let blocks = []
+      let isReachToEnd = false
+      let height = -1
       if (this.tab == 'mix') {
-        let res = await axios.get('/api/mix/blocks?afterHeight='+this.afterHeight)
+        let res = await axios.get('/api/mix/blocks?afterHeight='+afterHeight)
         let bchMap = this.getMap(res.data.bch)
         let bchnMap = this.getMap(res.data.bchn)
         let bchbchnMap = this.getMap(res.data.bchbchn)
 
-        let height = this.afterHeight - 1
-        let isReachToEnd = false
+        height = afterHeight - 1
         for (let i = 0 ; i < 10 ; i++, height--)  {
 
           let bchBlk = bchMap[height]
@@ -115,16 +139,12 @@ export default {
           }
         }
 
-        if (isReachToEnd) {
-          this.afterHeight = -1
-        } else {
-          this.afterHeight = height + 1
-        }
+
       } else {
-        let res = await axios.get('/api/' + this.tab + '/blocks?afterHeight='+this.afterHeight)
+        let res = await axios.get('/api/' + this.tab + '/blocks?afterHeight='+afterHeight)
         let map = this.getMap(res.data)
-        let height = this.afterHeight - 1
-        let isReachToEnd = false
+        height = afterHeight - 1
+
         for (let i = 0 ; i < 10 ; i++, height--)  {
           let blk = map[height]
           let block = blk ? blk : { isEmpty: true }
@@ -136,24 +156,100 @@ export default {
           }
         }
 
-        if (isReachToEnd) {
-          this.afterHeight = -1
-        } else {
-          this.afterHeight = height + 1
-        }
       }
-      this.isBlocksDataLoading = false
-      return blocks
+
+      if (isReachToEnd) {
+        afterHeight = -1
+      } else {
+        afterHeight = height + 1
+      }
+
+
+      return { blocks, afterHeight }
     },
     async handleScrolledToBottom (isVisible) {
       if (!isVisible) {
         return
       } else if (this.afterHeight != -1) {
-        let blocks = await this.getBlocksByHeight()
+        this.isBlocksDataLoading = true
+        let res = await this.getBlocksByHeight(this.afterHeight)
+        this.afterHeight = res.afterHeight
+        for (let i = 0 ; i < res.blocks.length - 1 ; i++) {
+          this.blocks.push(res.blocks[i])
+        }
+        this.blocks.push(res.blocks[res.blocks.length - 1])
+        this.$nextTick(() => {
+          this.isBlocksDataLoading = false
+        })
+      }
+    },
+    async handleScrolledToTop (isVisible) {
+      if (!isVisible) {
+        return
+      } else {
+
+        if (!this.isBlocksDataLoading) {
+          this.isBlocksDataLoading = true
+        }
+
+        let originalHeight = this.blocks[0].height
+        let afterHeight
+        let top = 10
+
+        if (this.topHeight - originalHeight >= 10) {
+          afterHeight = originalHeight + 11
+        } else {
+          afterHeight = this.topHeight + 1
+          top = this.topHeight - originalHeight
+        }
+
+        let res = await this.getBlocksByHeight(afterHeight)
+
+
+        if (res.blocks.length > 0) {
+          for (let i = top - 1; i > 0 ; i--) {
+            let block = res.blocks[i]
+            this.blocks.unshift(block)
+          }
+
+          this.blocks.unshift(res.blocks[0])
+          this.$nextTick(() => {
+            document.getElementById('block-' + originalHeight).scrollIntoView(true)
+          })
+        }
+
+        this.isBlocksDataLoading = false
+      }
+    },
+    async handleGotoHeight () {
+      let gotoHeight = -1
+      if (this.gotoHeight != null && !isNaN(gotoHeight = Number(this.gotoHeight))) {
+        this.isBlocksDataLoading = true
+        let res = await this.getBlocksByHeight(gotoHeight + 1)
+        if (res.blocks.length > 0 && res.afterHeight != -1) {
+          this.afterHeight = res.afterHeight
+          this.blocks = res.blocks
+          this.$nextTick(() => {
+            document.getElementById('block-' + gotoHeight).scrollIntoView(true)
+            if (gotoHeight == this.topHeight) {
+              this.isBlocksDataLoading = false
+            }
+            this.showBlockBroadcast(this.blocks[0])
+          })
+        } else {
+          this.isBlocksDataLoading = false
+        }
+      }
+    },
+    updateBlocks (blocks, isToReplace) {
+      if (isToReplace) {
+        this.blocks = blocks
+      } else {
         for (let block of blocks) {
           this.blocks.push(block)
         }
       }
+      this.isBlocksDataLoading = false
     },
     getMap (chain) {
       let map = {}
@@ -165,6 +261,21 @@ export default {
       return map
     },
     showBlock (block) {
+
+
+
+      let prev = this.$refs['block-' + this.selectedHeight]
+      if (prev && prev[0] != null) {
+        prev[0].selected = false
+      }
+
+      this.$refs['block-' + block.height][0].selected = true
+      this.selectedHeight = block.height
+
+
+
+
+
       let bdatas = []
       if (!block.bch.isEmpty) {
         bdatas.push(block.bch)
@@ -186,6 +297,8 @@ export default {
     changeTab (e) {
       let tab = e.currentTarget.getAttribute('tab')
       if (tab != this.tab) {
+        this.gotoHeight = null
+        this.isBlocksDataLoading = true
         this.blocks = []
         this.afterHeight = 0
         this.tab = tab
@@ -283,10 +396,26 @@ export default {
     position: fixed;
     overflow-y: scroll;
   }
-  .dataloading {
-    top: 79px;
-    bottom: 10px;
-    width: 50%;
+
+  .search {
     position: fixed;
+    margin-left: 10px;
+    margin-top: 10px;
+    z-index: 10000;
+  }
+
+  .search .searchbar {
+    display: inline-block;
+    vertical-align: middle;
+    width: 100px;
+  }
+
+  .search .searchicon {
+    display: inline-block;
+    vertical-align: middle;
+    width: 15px;
+    height: 15px;
+    margin-left: 5px;
+    cursor: pointer;
   }
 </style>

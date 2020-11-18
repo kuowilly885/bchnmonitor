@@ -19,11 +19,11 @@
     </div>
     <div class="item">
       <span>Time:</span>
-      <span>{{ bdata.time }}</span>
+      <span>{{ `${bdata.time} (${this.getTime(bdata.time)} ago)` }}</span>
     </div>
     <div class="item">
       <span>Median Time:</span>
-      <span>{{ bdata.mediantime }}</span>
+      <span>{{ `${bdata.mediantime} (${this.getTime(bdata.mediantime)} ago)` }}</span>
     </div>
     <div class="item">
       <span>Nonce:</span>
@@ -67,8 +67,20 @@ export default {
     bdata: Object
   },
   methods: {
+    getTime(time) {
+      let timeDiff = Math.round(new Date().getTime() / 1000) - time
+      if (timeDiff < 60) {
+        return timeDiff + ' secs'
+      } else if (timeDiff < 3600) {
+        return Math.round(timeDiff / 60) + ' mins'
+      } else if (timeDiff < 86400) {
+        return Math.round(timeDiff / 3600) + ' hrs'
+      }
+      return Math.round(timeDiff / 86400) + ' days'
+    }
   },
   mounted() {
+    this.getTime(this.bdata.time)
   }
 }
 </script>
@@ -86,7 +98,12 @@ export default {
     margin: 10px;
   }
 
-  .item span {
+  .item span:nth-child(1) {
+    font-weight: bold;
+  }
+
+  .item span:nth-child(2) {
+    font-style: italic;
   }
 
   .block {
