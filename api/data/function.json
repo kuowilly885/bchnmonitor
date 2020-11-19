@@ -11,6 +11,13 @@
       "route": "{chain}/{method}"
     },
     {
+      "type": "signalRConnectionInfo",
+      "name": "connectionInfo",
+      "hubName": "block",
+      "connectionStringSetting": "AzureSignalRConnectionString",
+      "direction": "in"
+    },
+    {
       "type": "http",
       "direction": "out",
       "name": "res"

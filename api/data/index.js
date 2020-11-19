@@ -5,7 +5,7 @@ const APIS = {
     bchbchn: new API('bchbchn')
 }
 
-module.exports = async (context, req) => {
+module.exports = async (context, req, connectionInfo) => {
     let res = {
         status: 200,
         headers: {
@@ -41,7 +41,7 @@ module.exports = async (context, req) => {
                     res.body = { bchn, bch, bchbchn  }
                     break
             }
-        } else {
+        } else if (context.bindingData.chain != 'token') {
             switch (context.bindingData.method) {
                 case 'blocks':
                     res.body = await APIS[context.bindingData.chain].getRecentBlocksData(top, true, withTx, afterHeight)
@@ -53,6 +53,8 @@ module.exports = async (context, req) => {
                     res.body = await APIS[context.bindingData.chain].getChainTips(req.query)
                     break
             }
+        } else {
+          res.body = connectionInfo
         }
     } catch (err) {
         console.log(err)
