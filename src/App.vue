@@ -111,8 +111,6 @@ export default {
       let height = -1
       if (this.tab == 'mix') {
         let res = await axios.get('/api/mix/blocks?afterHeight='+afterHeight)
-        console.log('afterHeight: ' + afterHeight)
-        console.log(res.data)
         let bchMap = this.getMap(res.data.bch)
         let bchnMap = this.getMap(res.data.bchn)
         let bchbchnMap = this.getMap(res.data.bchbchn)
