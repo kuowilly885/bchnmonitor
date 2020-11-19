@@ -16,9 +16,9 @@ module.exports = async (context, req) => {
     try {
         let bch, bchn, bchbchn,
             withTx = req.query.withTx == 'true',
-            tempTop = Number(req.query.top)
-            tempAfterHeight = Number(req.query.afterHeight)
-            top = (isNaN(tempTop) || tempTop >= 100) ? 10 : tempTop, 
+            tempTop = Number(req.query.top),
+            tempAfterHeight = Number(req.query.afterHeight),
+            top = (isNaN(tempTop) || tempTop >= 100) ? 10 : tempTop,
             afterHeight = isNaN(tempAfterHeight) ? null : tempAfterHeight
         if (context.bindingData.chain == 'mix') {
             switch (context.bindingData.method) {
