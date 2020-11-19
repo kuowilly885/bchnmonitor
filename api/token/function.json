@@ -8,7 +8,7 @@
       "methods": [
         "get"
       ],
-      "route": "{chain}/{method}"
+      "route": "token"
     },
     {
       "type": "http",
