@@ -111,6 +111,8 @@ export default {
       let height = -1
       if (this.tab == 'mix') {
         let res = await axios.get('/api/mix/blocks?afterHeight='+afterHeight)
+        console.log('afterHeight: ' + afterHeight)
+        console.log(res.data)
         let bchMap = this.getMap(res.data.bch)
         let bchnMap = this.getMap(res.data.bchn)
         let bchbchnMap = this.getMap(res.data.bchbchn)
@@ -168,8 +170,6 @@ export default {
       } else if (this.afterHeight != -1) {
         this.isBlocksDataLoading = true
         let res = await this.getBlocksByHeight(this.afterHeight)
-        console.log('bottom')
-        console.log(res.blocks)
         this.afterHeight = res.afterHeight
         for (let i = 0 ; i < res.blocks.length - 1 ; i++) {
           this.blocks.push(res.blocks[i])
@@ -200,8 +200,6 @@ export default {
         }
 
         let res = await this.getBlocksByHeight(afterHeight)
-        console.log('top')
-        console.log(res.blocks)
 
         if (res.blocks.length > 0) {
           for (let i = top - 1; i > 0 ; i--) {
@@ -222,8 +220,6 @@ export default {
         this.isBlocksDataLoading = true
         let res = await this.getBlocksByHeight(gotoHeight + 1)
         if (res.blocks.length > 0 && res.afterHeight != -1) {
-          console.log('goto')
-          console.log(res.blocks)
           this.afterHeight = res.afterHeight
           this.blocks = res.blocks
           this.$nextTick(() => {
