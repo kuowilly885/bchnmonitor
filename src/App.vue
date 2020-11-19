@@ -5,12 +5,12 @@
       :lock-scroll="true"
       :is-full-page="true"></loadingComponent>
       <div class="header">
-          <h1> BCH Hard Fork Monitor</h1>
+          <div class="title"> BCH HF Monitor</div>
           <div class="menu">
               <div><a v-on:click="changeTab" v-bind:class="{ selected: tab == 'mix', normal: tab != 'mix' }" tab="mix">MIX</a></div>
-              <div><a v-on:click="changeTab" v-bind:class="{ selected: tab == 'bch', normal: tab != 'bch' }" tab="bch">BCH ABC</a></div>
-              <div><a v-on:click="changeTab" v-bind:class="{ selected: tab == 'bchn', normal: tab != 'bchn' }" tab="bchn">BCH NODE</a></div>
-              <div><a v-on:click="changeTab" v-bind:class="{ selected: tab == 'bchbchn', normal: tab != 'bchbchn' }" tab="bchbchn">BCH ABC NODE</a></div>
+              <div><a v-on:click="changeTab" v-bind:class="{ selected: tab == 'bch', normal: tab != 'bch' }" tab="bch">ABC</a></div>
+              <div><a v-on:click="changeTab" v-bind:class="{ selected: tab == 'bchn', normal: tab != 'bchn' }" tab="bchn">NODE</a></div>
+              <div><a v-on:click="changeTab" v-bind:class="{ selected: tab == 'bchbchn', normal: tab != 'bchbchn' }" tab="bchbchn">ABC NODE</a></div>
           </div>
       </div>
       <div class="page_container">
@@ -21,7 +21,7 @@
         </div>
         <div class="chain_container">
           <div class="search">
-            <input class="searchbar" placeholder="Goto a height" v-model="gotoHeight">
+            <input class="searchbar" placeholder="height" v-model="gotoHeight">
             <img class="searchicon" src="/image/search.png" v-on:click="handleGotoHeight">
           </div>
           <div class="chain">
@@ -104,8 +104,6 @@ export default {
 
         this.isBlocksDataLoading = false
       })
-
-
     },
     async getBlocksByHeight (afterHeight) {
       let blocks = []
@@ -138,8 +136,6 @@ export default {
             break
           }
         }
-
-
       } else {
         let res = await axios.get('/api/' + this.tab + '/blocks?afterHeight='+afterHeight)
         let map = this.getMap(res.data)
@@ -163,7 +159,6 @@ export default {
       } else {
         afterHeight = height + 1
       }
-
 
       return { blocks, afterHeight }
     },
@@ -204,14 +199,13 @@ export default {
         }
 
         let res = await this.getBlocksByHeight(afterHeight)
-        let toConcat = []
 
         if (res.blocks.length > 0) {
-          for (let i = 0; i < top ; i++) {
-            toConcat.push(res.blocks[i])
+          for (let i = top - 1; i > 0 ; i--) {
+            this.blocks.unshift(res.blocks[i])
           }
 
-          this.blocks = toConcat.concat(this.blocks)
+          this.blocks.unshift(res.blocks[0])
           this.$nextTick(() => {
             document.getElementById('block-' + originalHeight).scrollIntoView(true)
             this.isBlocksDataLoading = false
@@ -259,9 +253,6 @@ export default {
       return map
     },
     showBlock (block) {
-
-
-
       let prev = this.$refs['block-' + this.selectedHeight]
       if (prev && prev[0] != null) {
         prev[0].selected = false
@@ -269,10 +260,6 @@ export default {
 
       this.$refs['block-' + block.height][0].selected = true
       this.selectedHeight = block.height
-
-
-
-
 
       let bdatas = []
       if (!block.bch.isEmpty) {
@@ -319,24 +306,58 @@ export default {
   }
 
   .header {
-      position: fixed;
-      width: 100% ;
-      background-color: rgb(40,0,0);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-sizing: border-box;
-      z-index: 100;
+    position: fixed;
+    width: 100% ;
+    background-color: rgb(40,0,0);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+    z-index: 100;
+
   }
 
-  .header h1 {
+  .header .title {
     color: white;
-    margin-left: 30px;
+  }
+
+  @media screen and (max-width: 500px) { /* size equals or less to mobile */
+    .header .title {
+      font-size: small;
+      margin-left: 10px;
+    }
+  }
+  @media screen and (min-width: 501px) and (max-width: 950px) { /* size equals to tablet */
+    .header .title {
+      font-size: medium;
+      margin-left: 20px;
+    }
+  }
+  @media screen and (min-width: 951px) { /* pc */
+    .header .title {
+      font-size: x-large;
+      margin-left: 30px;
+    }
   }
 
   .menu {
       display: flex;
-      margin-right: 30px;
+  }
+
+  @media screen and (max-width: 500px) { /* size equals or less to mobile */
+    .menu {
+        margin-right: 5px;
+    }
+  }
+  @media screen and (min-width: 501px) and (max-width: 950px) { /* size equals to tablet */
+    .menu {
+        margin-right: 20px;
+    }
+  }
+  @media screen and (min-width: 951px) { /* pc */
+    .menu {
+        margin-right: 30px;
+    }
   }
 
   .menu div {
@@ -348,10 +369,46 @@ export default {
   }
 
   .menu div a {
-      padding: 25px 25px;
       text-decoration: none;
       display: block;
       cursor: pointer;
+  }
+
+  @media screen and (max-width: 500px) { /* size equals or less to mobile */
+    .menu div a {
+      font-size: xx-small;
+      padding: 3px 3px;
+    }
+    .normal {
+      border-bottom: 2px solid transparent;
+    }
+    .selected  {
+      border-bottom: 2px solid #06bd8e;
+    }
+  }
+  @media screen and (min-width: 501px) and (max-width: 950px) { /* size equals to tablet */
+    .menu div a {
+      font-size: small;
+      padding: 10px 10px;
+    }
+    .normal {
+      border-bottom: 4px solid transparent;
+    }
+    .selected  {
+      border-bottom: 4px solid #06bd8e;
+    }
+  }
+  @media screen and (min-width: 951px) { /* pc */
+    .menu div a {
+      font-size: large;
+      padding: 25px 25px;
+    }
+    .normal {
+      border-bottom: 8px solid transparent;
+    }
+    .selected  {
+      border-bottom: 8px solid #06bd8e;
+    }
   }
 
   .menu div a:hover {
@@ -361,12 +418,10 @@ export default {
 
   .normal {
     color: #ffffff;
-    border-bottom: 8px solid transparent;
   }
 
   .selected  {
     color: #06bd8e;
-    border-bottom: 8px solid #06bd8e;
   }
 
   .page_container {
@@ -375,18 +430,37 @@ export default {
     flex-direction: row;
     align-items: stretch;
     flex-wrap: wrap;
-    padding-top: 79px;
   }
+
+  @media screen and (max-width: 500px) { /* size equals or less to mobile */
+    .page_container {
+      padding-top: 18px;
+    }
+  }
+  @media screen and (min-width: 501px) and (max-width: 950px) { /* size equals to tablet */
+    .page_container {
+      padding-top: 43px;
+    }
+  }
+  @media screen and (min-width: 951px) { /* pc */
+    .page_container {
+      padding-top: 79px;
+    }
+  }
+
   .chain_container {
     flex: 1;
     background-color: #f0f8ff;
   }
+
   .chain  {
     margin: 30px;
   }
+
   .blockdata_container {
     flex: 1;
   }
+
   .blocksection {
     top: 79px;
     bottom: 10px;
@@ -395,25 +469,85 @@ export default {
     overflow-y: scroll;
   }
 
+  @media screen and (max-width: 500px) { /* size equals or less to mobile */
+    .blocksection {
+      top: 18px;
+    }
+  }
+  @media screen and (min-width: 501px) and (max-width: 950px) { /* size equals to tablet */
+    .blocksection {
+      top: 43px;
+    }
+  }
+  @media screen and (min-width: 951px) { /* pc */
+    .blocksection {
+      top: 79px;
+    }
+  }
+
   .search {
     position: fixed;
-    margin-left: 10px;
-    margin-top: 10px;
     z-index: 10000;
   }
 
-  .search .searchbar {
-    display: inline-block;
-    vertical-align: middle;
-    width: 100px;
-  }
-
   .search .searchicon {
-    display: inline-block;
-    vertical-align: middle;
-    width: 15px;
-    height: 15px;
-    margin-left: 5px;
     cursor: pointer;
   }
+
+  @media screen and (max-width: 500px) { /* size equals or less to mobile */
+    .search {
+      margin-left: 5px;
+      margin-top: 5px;
+    }
+    .search .searchbar {
+      width: 33px;
+      font-size: xx-small;
+    }
+    .search .searchicon {
+      width: 11px;
+      height: 11px;
+      margin-left: 2px;
+      margin-top: 2px;
+      display: block;
+    }
+  }
+  @media screen and (min-width: 501px) and (max-width: 950px) { /* size equals to tablet */
+    .search {
+      margin-left: 5px;
+      margin-top: 5px;
+    }
+    .search .searchbar {
+      vertical-align: middle;
+      width: 47px;
+    }
+    .search .searchicon {
+      width: 11px;
+      height: 11px;
+      margin-left: 2px;
+    }
+    .search .searchicon {
+      display: inline-block;
+      vertical-align: middle;
+    }
+  }
+  @media screen and (min-width: 951px) { /* pc */
+    .search {
+      margin-left: 10px;
+      margin-top: 10px;
+    }
+    .search .searchbar {
+      vertical-align: middle;
+      width: 100px;
+    }
+    .search .searchicon {
+      width: 15px;
+      height: 15px;
+      margin-left: 5px;
+    }
+    .search .searchicon {
+      display: inline-block;
+      vertical-align: middle;
+    }
+  }
+
 </style>

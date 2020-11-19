@@ -1,6 +1,6 @@
 <template>
   <div class="block">
-    <h1 class="title">{{ bdata.tag }}</h1>
+    <div class="title">{{ bdata.tag }}</div>
     <div class="item">
       <span>Height:</span>
       <span>{{ bdata.height }}</span>
@@ -19,11 +19,13 @@
     </div>
     <div class="item">
       <span>Time:</span>
-      <span>{{ `${bdata.time} (${this.getTime(bdata.time)} ago)` }}</span>
+      <!-- <span>{{ `${bdata.time} (${this.getTime(bdata.time)})` }}</span> -->
+      <span>{{ `${bdata.time}` }}</span>
     </div>
     <div class="item">
       <span>Median Time:</span>
-      <span>{{ `${bdata.mediantime} (${this.getTime(bdata.mediantime)} ago)` }}</span>
+      <!-- <span>{{ `${bdata.mediantime} (${this.getTime(bdata.mediantime)})` }}</span> -->
+      <span>{{ `${bdata.mediantime}` }}</span>
     </div>
     <div class="item">
       <span>Nonce:</span>
@@ -39,26 +41,30 @@
     </div>
     <div class="item">
       <span>Chainwork:</span>
-      <span>{{ bdata.chainwork }}</span>
+      <copyTextComponent :showingText="getLastHash(bdata.chainwork)" :text="bdata.chainwork"/>
     </div>
     <div class="item">
-      <span>Previous Hash:</span>
-      <span>{{ bdata.previousblockhash }}</span>
+      <span>Prev Hash:</span>
+      <copyTextComponent :showingText="getLastHash(bdata.previousblockhash)" :text="bdata.previousblockhash"/>
     </div>
     <div class="item">
       <span>Merkle Root:</span>
-      <span>{{ bdata.merkleroot }}</span>
+      <copyTextComponent :showingText="getLastHash(bdata.merkleroot)" :text="bdata.merkleroot"/>
     </div>
     <div class="item">
       <span>Hash:</span>
-      <span>{{ bdata.hash }}</span>
+      <copyTextComponent :showingText="getLastHash(bdata.hash)" :text="bdata.hash"/>
     </div>
   </div>
 </template>
 
 <script scoped>
+import copyTextComponent from './copyTextComponent'
 export default {
   name: "BlockData",
+  components: {
+    copyTextComponent
+  },
   data() {
     return {
     }
@@ -77,10 +83,10 @@ export default {
         return Math.round(timeDiff / 3600) + ' hrs'
       }
       return Math.round(timeDiff / 86400) + ' days'
+    },
+    getLastHash(hash) {
+      return '... ' + hash.substring(hash.length-10, hash.length)
     }
-  },
-  mounted() {
-    this.getTime(this.bdata.time)
   }
 }
 </script>
@@ -88,6 +94,23 @@ export default {
 <style scoped>
   .title {
     margin: 10px;
+    font-weight: bold;
+  }
+
+  @media screen and (max-width: 500px) { /* size equals or less to mobile */
+    .title {
+      font-size: small;
+    }
+  }
+  @media screen and (min-width: 501px) and (max-width: 950px) { /* size equals to tablet */
+    .title {
+      font-size: large;
+    }
+  }
+  @media screen and (min-width: 951px) { /* pc */
+    .title {
+      font-size: xx-large;
+    }
   }
 
   .item {
@@ -106,11 +129,39 @@ export default {
     font-style: italic;
   }
 
+
+  @media screen and (max-width: 500px) { /* size equals or less to mobile */
+    .item span:nth-child(1) {
+      font-size: x-small;
+    }
+
+    .item span:nth-child(2) {
+      font-size: x-small;
+    }
+  }
+  @media screen and (min-width: 501px) and (max-width: 950px) { /* size equals to tablet */
+    .item span:nth-child(1) {
+      font-size: small;
+    }
+
+    .item span:nth-child(2) {
+      font-size: small;
+    }
+  }
+  @media screen and (min-width: 951px) { /* pc */
+    .item span:nth-child(1) {
+      font-size: medium;
+    }
+
+    .item span:nth-child(2) {
+      font-size: medium;
+    }
+  }
+
   .block {
     margin: 10px;
     border-radius: 10px 10px;
     border: 2px dotted #000000;
   }
-
 
 </style>

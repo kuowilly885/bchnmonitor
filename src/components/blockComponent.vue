@@ -32,7 +32,7 @@ export default {
   },
   methods: {
     getLastHash(hash) {
-      return hash ? '...' + hash.substring(hash.length-15, hash.length) : 'none'
+      return hash ? '...' + hash.substring(hash.length-10, hash.length) : 'none'
     },
     showBlock () {
 
@@ -76,26 +76,36 @@ export default {
   .block-content-container {
     cursor: pointer;
     position: relative;
-    height: 150px;
-    width: 150px;
     left: 50%;
     transform: translateX(-50%);
   }
-  .block {
-    height: 150px;
-    width: 150px;
-  }
   .checked {
     position: absolute;
-    height: 20px;
-    width: 20px;
   }
+
+  @media screen and (max-width: 500px) { /* size equals or less to mobile */
+    .checked {
+      height: 10px;
+      width: 10px;
+    }
+  }
+  @media screen and (min-width: 501px) and (max-width: 950px) { /* size equals to tablet */
+    .checked {
+      height: 20px;
+      width: 20px;
+    }
+  }
+  @media screen and (min-width: 951px) { /* pc */
+    .checked {
+      height: 35px;
+      width: 35px;
+    }
+  }
+
+
+
   .height-container {
     position: absolute;
-    height: 92px;
-    width: 92px;
-    left: 11px;
-    top: 47px;
     display: table;
   }
   .height {
@@ -104,6 +114,67 @@ export default {
     text-align: center;
     font-weight: bold;
   }
+
+  @media screen and (max-width: 500px) { /* size equals or less to mobile */
+    .block-content-container {
+      height: 50px;
+      width: 50px;
+    }
+    .block {
+      height: 50px;
+      width: 50px;
+    }
+    .height-container {
+      height: 31px;
+      width: 31px;
+      left: 4px;
+      top: 15px;
+    }
+    .height {
+      font-size: xx-small;
+    }
+  }
+  @media screen and (min-width: 501px) and (max-width: 950px) { /* size equals to tablet */
+    .block-content-container {
+      height: 100px;
+      width: 100px;
+    }
+    .block {
+      height: 100px;
+      width: 100px;
+    }
+    .height-container {
+      height: 61px;
+      width: 61px;
+      left: 8px;
+      top: 31px;
+    }
+    .height {
+      font-size: medium;
+    }
+  }
+  @media screen and (min-width: 951px) { /* pc */
+    .block-content-container {
+      height: 150px;
+      width: 150px;
+    }
+    .block {
+      height: 150px;
+      width: 150px;
+    }
+    .height-container {
+      height: 92px;
+      width: 92px;
+      left: 11px;
+      top: 47px;
+    }
+    .height {
+      font-size: x-large;
+    }
+  }
+
+
+
   .height_red {
     color: red;
   }
@@ -112,13 +183,31 @@ export default {
   }
   .vl {
     position: relative;
-    border-left-width: 8px;
     border-left-style: dotted;
-    height: 45px;
     width: 0;
     left: 50%;
     transform: translateX(-50%);
   }
+
+  @media screen and (max-width: 500px) { /* size equals or less to mobile */
+    .vl {
+      border-left-width: 2px;
+      height: 10px;
+    }
+  }
+  @media screen and (min-width: 501px) and (max-width: 950px) { /* size equals to tablet */
+    .vl {
+      border-left-width: 4px;
+      height: 23px;
+    }
+  }
+  @media screen and (min-width: 951px) { /* pc */
+    .vl {
+      border-left-width: 8px;
+      height: 45px;
+    }
+  }
+
   .vl_black {
     border-left-color: black;
   }
